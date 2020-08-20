@@ -16,7 +16,10 @@ RUN apt-get update && apt-get install -y \
 		libxml2-dev \
 		php-soap \
 		libxslt-dev \
-        libpng-dev \
+                sendmail \
+                libc-client-dev \
+                libkrb5-dev \
+                libpng-dev \
 	 && rm -rf /var/lib/apt/lists/*
 
 # Configuraciones adicionales
@@ -26,6 +29,8 @@ COPY pm-custom.ini /usr/local/etc/php/conf.d/pm-custom.ini
 RUN printf "log_errors = On \nerror_log = /dev/stderr\n" > /usr/local/etc/php/conf.d/php-logs.ini
 
 RUN a2enmod rewrite
+RUN a2enmod ssl
+RUN a2enmod headers
 
 # Oracle instantclient
 ADD instantclient/instantclient-basiclite-linux.x64-11.2.0.4.0.zip /tmp/
@@ -73,6 +78,9 @@ RUN docker-php-ext-install tokenizer
 RUN docker-php-ext-install wddx
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install xsl
+RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
+RUN docker-php-ext-install imap
+
 
 
 RUN echo "<?php echo phpinfo(); ?>" > /var/www/html/phpinfo.php
